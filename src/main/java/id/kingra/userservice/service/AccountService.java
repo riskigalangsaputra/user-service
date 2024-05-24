@@ -7,4 +7,5 @@ public interface AccountService {
 
     ResponseEntity<?> checkUserRegister(CheckRegisterReqDto request);
 
+    String loadBalancerTest();
 }

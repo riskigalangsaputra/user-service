@@ -9,6 +9,7 @@ import id.kingra.userservice.feignclient.OTPClient;
 import id.kingra.userservice.repository.AccountRepository;
 import id.kingra.userservice.repository.redis.TempAccountRepository;
 import id.kingra.userservice.service.AccountService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
@@ -56,5 +58,10 @@ public class AccountServiceImpl implements AccountService {
             return ResponseEntity.status(e.status()).body(e.contentUTF8());
         }
         return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public String loadBalancerTest() {
+        return otpClient.testLoadBalancer();
     }
 }
