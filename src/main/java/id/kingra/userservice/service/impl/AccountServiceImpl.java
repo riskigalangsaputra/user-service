@@ -3,6 +3,7 @@ package id.kingra.userservice.service.impl;
 import feign.FeignException;
 import id.kingra.userservice.dto.Request.CheckRegisterReqDto;
 import id.kingra.userservice.dto.Request.OtpReqDto;
+import id.kingra.userservice.dto.Request.VerificationReqDto;
 import id.kingra.userservice.entity.Account;
 import id.kingra.userservice.entity.redis.TempAccount;
 import id.kingra.userservice.feignclient.OTPClient;
@@ -63,5 +64,25 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public String loadBalancerTest() {
         return otpClient.testLoadBalancer();
+    }
+
+    @Override
+    public ResponseEntity<?> verificationOtp(VerificationReqDto request) {
+        Optional<TempAccount> opTemptAccount = tempAccountRepository.getFirstByEmail(request.getEmail());
+        if (opTemptAccount.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            otpClient.verificationOtp(request);
+        } catch (FeignException ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(ex.status()).body(ex.contentUTF8());
+        }
+
+        TempAccount tempAccount = opTemptAccount.get();
+        tempAccount.setValid(true);
+        tempAccountRepository.save(tempAccount);
+        return ResponseEntity.ok().build();
     }
 }
